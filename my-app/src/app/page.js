@@ -55,6 +55,8 @@ export default function Home() {
     return 0;
   });
 
+  console.log(data)
+
   // Filter episodes based on search query
   const filterEpisodes = (query) => {
     if (query === '') {
