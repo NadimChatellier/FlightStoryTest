@@ -1,14 +1,24 @@
-export default function SearchBar() {
-    return (
-        <div className="flex justify-center items-center">
+import { useState } from 'react';
+
+export default function SearchBar({ onSearch }) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    onSearch(e.target.value); // Pass the query to the parent component to filter data
+  };
+
+  return (
+    <div className="flex justify-center items-center w-full mb-8">
+      <div className="flex items-center w-full max-w-3xl">
         <input
-            type="text"
-            placeholder="Search for a podcast"
-            className="w-3/5 px-4 py-2 border border-gray-300 rounded-md"
+          type="text"
+          placeholder="Search for a podcast"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button className="px-4 py-2 bg-blue-500 text-white rounded-md ml-2 hover: transform hover:scale-105 transition duration-300">
-            Search
-        </button>
-        </div>
-    );
+      </div>
+    </div>
+  );
 }
