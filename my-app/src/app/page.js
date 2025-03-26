@@ -41,6 +41,9 @@ export default function Home() {
     fetchData();
   }, []); // Empty dependency array ensures this runs once after mount
 
+
+
+
   // Sort data based on the sortBy value
   const sortedData = [...filteredData].sort((a, b) => {
     if (sortBy === "release_date") {
@@ -54,8 +57,6 @@ export default function Home() {
     }
     return 0;
   });
-
-  console.log(data)
 
   // Filter episodes based on search query
   const filterEpisodes = (query) => {
@@ -113,7 +114,6 @@ export default function Home() {
     setSelectedEpisode(null);
   };
 
-  console.log(data);
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-900 text-gray-300 p-8 sm:p-12">

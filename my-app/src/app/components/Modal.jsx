@@ -1,113 +1,21 @@
 import React, { useState } from "react";
-import { Bar, Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from "chart.js";
-
+import { Bar, Doughnut, Line } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, LineElement } from "chart.js";
+import ModalGraphSettings from "./modalGraphSettings/graphSettings";
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend, LineElement);
 
 export default function Modal({ episode, onClose }) {
   const [isMetricsVisible, setIsMetricsVisible] = useState(false); // State to toggle metrics visibility
 
   if (!episode) return null;
+    //get the data and options for the charts
+    const {subscribersData, subscribersOptions, interactionData, interactionOptions} = ModalGraphSettings({episode})
 
   const handleBackgroundClick = (e) => {
     if (e.target.id === "modal-background") {
       onClose();
     }
-  };
-
-  // Chart Data for Engagement Metrics
-  const engagementData = {
-    labels: ["Views", "Likes", "Dislikes", "Comments"],
-    datasets: [
-      {
-        label: "Engagement Metrics",
-        data: [
-          parseInt(episode.views),
-          parseInt(episode.likes),
-          parseInt(episode.dislikes),
-          parseInt(episode.comments),
-        ],
-        backgroundColor: ["#3b82f6", "#10b981", "#ef4444", "#f59e0b"],
-        borderRadius: 8,
-      },
-    ],
-  };
-
-  const engagementOptions = {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()}`
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
-
-  // Chart Data for Performance Metrics
-  const performanceData = {
-    labels: ["Average View Duration", "Average View Percentage", "Shares", "Subscribers Gained", "Subscribers Lost"],
-    datasets: [
-      {
-        label: "Performance Metrics",
-        data: [
-          parseFloat(episode.averageViewDuration),
-          parseFloat(episode.averageViewPercentage),
-          parseInt(episode.shares),
-          parseInt(episode.subscribersGained),
-          parseInt(episode.subscribersLost),
-        ],
-        backgroundColor: ["#4B8B3B", "#FDBA74", "#3b82f6", "#10b981", "#ef4444"],
-        borderRadius: 8,
-      },
-    ],
-  };
-
-  const performanceOptions = {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()}`
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
-
-  // Chart Data for Subscribers Gained vs Lost (Doughnut Chart)
-  const subscribersData = {
-    labels: ["Gained", "Lost"],
-    datasets: [
-      {
-        data: [parseInt(episode.subscribersGained), parseInt(episode.subscribersLost)],
-        backgroundColor: ["#10b981", "#ef4444"],
-      },
-    ],
-  };
-
-  const subscribersOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: "top" },
-      tooltip: {
-        callbacks: {
-          label: (tooltipItem) => `${tooltipItem.raw.toLocaleString()}`
-        }
-      },
-    },
   };
 
   // Toggle visibility of the metrics section
@@ -179,31 +87,59 @@ export default function Modal({ episode, onClose }) {
             {isMetricsVisible ? "Hide Performance Metrics" : "Show Performance Metrics"}
           </button>
 
-
           {isMetricsVisible && (
-  <div className="mt-4 text-gray-300 text-sm">
-    {/* Engagement Metrics and Performance Metrics on the same line */}
-    <div className="flex justify-between gap-8">
-      {/* Engagement Metrics Bar Chart */}
-      <div className="w-full h-64 mb-8">
-        <h3 className="text-xl font-bold mt-8">Engagement Metrics</h3>
-        <Bar data={engagementData} options={engagementOptions} />
-      </div>
+  <div className="mt-8 text-gray-300 text-sm">
 
-      {/* Performance Metrics Bar Chart */}
-      <div className="w-full h-64 mb-8">
-        <h3 className="text-xl font-bold mt-8">Performance Metrics</h3>
-        <Bar data={performanceData} options={performanceOptions} />
+<div className="overflow-x-auto w-full mb-8 flex flex-col items-center">
+<h3 className="text-xl font-bold mt-8">Statistics</h3>
+  <table className="w-full max-w-lg mx-auto table-auto text-white text-lg shadow-lg rounded-lg overflow-hidden m-8">
+    <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+      <tr>
+        <th className="p-4 text-2xl border-r border-white w-1/2">Metrics</th>
+        <th className="p-4 text-2xl w-1/2">Values</th>
+      </tr>
+    </thead>
+    <tbody>
+      {[
+        { label: 'Estimated Minutes Watched', value: episode.estimatedMinutesWatched },
+        { label: 'Average View Duration', value: `${episode.averageViewDuration} (seconds)` },
+        { label: 'Average View Percentage', value: `${episode.averageViewPercentage}%` },
+        { label: 'Shares', value: episode.shares },
+        { label: 'Subscribers Gained', value: episode.subscribersGained },
+        { label: 'Subscribers Lost', value: episode.subscribersLost },
+      ].map((item, index) => (
+        <tr key={index} className={index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'}>
+          <td className="p-4 font-medium border-r border-gray-500 w-1/2">{item.label}</td>
+          <td className="p-4 text-right font-semibold w-1/2">{item.value}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+    {/* Subscribers Gained vs Lost */}
+    <div className="w-full mb-8 flex flex-col items-center">
+      <h3 className="text-xl font-bold mt-8">Subscribers Gained vs Lost</h3>
+      <p className="text-center text-sm text-gray-400 mb-4">
+        This doughnut chart shows the number of subscribers gained and lost for this episode.
+      </p>
+      <div className="w-full max-w-[500px]">
+        <Doughnut data={subscribersData} options={subscribersOptions} />
       </div>
     </div>
 
-    {/* Subscribers Gained vs Lost on a new line */}
-    <div className="w-full h-64 mb-8">
-      <h3 className="text-xl font-bold mt-8">Subscribers Gained vs Lost</h3>
-      <Doughnut data={subscribersData} options={subscribersOptions} />
+    {/* View to Shares Ratio */}
+    <div className="w-full mb-8 flex flex-col items-center">
+      <h3 className="text-xl font-bold mt-8">Video engement</h3>
+      <div className="w-full max-w-[800px]">
+        <h3 className="text-xl font-bold m-8">Engagement Rate  ({episode.views} views)</h3>
+        <Bar data={interactionData} options={interactionOptions} />
+      </div>
     </div>
   </div>
 )}
+
+
 
         </div>
       </div>
